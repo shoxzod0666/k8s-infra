@@ -1,0 +1,8 @@
+controller:
+  service:
+    type: NodePort
+  hostNetwork: true
+  kind: DaemonSet
+  ingressClassResource:
+    name: nginx
+    default: true
