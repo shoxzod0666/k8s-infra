@@ -1,4 +1,10 @@
 # Namespaces
+resource "kubernetes_namespace" "jenkins" {
+  metadata {
+    name = "jenkins"
+  }
+}
+
 resource "kubernetes_namespace" "microservices" {
   metadata {
     name = "microservices"
@@ -35,6 +41,25 @@ resource "kubernetes_namespace" "argocd" {
   }
 }
 
+# Jenkins
+resource "helm_release" "jenkins" {
+  name       = "jenkins"
+  repository = "https://charts.jenkins.io"
+  chart      = "jenkins"
+  namespace  = kubernetes_namespace.jenkins.metadata[0].name
+
+  values = [file("${path.module}/../jenkins/my-values.yaml")]
+
+  wait             = true
+  timeout          = 900
+  atomic           = false
+  cleanup_on_fail  = false
+
+  depends_on = [
+    kubernetes_namespace.jenkins,
+    helm_release.longhorn
+  ]
+}
 # Ingress Nginx
 resource "helm_release" "ingress_nginx" {
   name       = "ingress-nginx"

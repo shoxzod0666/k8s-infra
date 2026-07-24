@@ -1,0 +1,39 @@
+controller:
+  tag: ""
+  admin:
+    password: admin
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hostName: jenkins.173.249.57.192.sslip.io
+    tls:
+      - secretName: "jenkins-tls"
+        hosts:
+          - jenkins.173.249.57.192.sslip.io
+
+  installPlugins:
+    - kubernetes
+    - workflow-aggregator
+    - git
+    - configuration-as-code
+    - docker-workflow
+    - blueocean
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  size: 10Gi
+
+agent:
+  enabled: true

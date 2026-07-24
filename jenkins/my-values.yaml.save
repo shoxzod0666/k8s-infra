@@ -1,0 +1,46 @@
+controller:
+  # 1. O'ZGARTIRING: Jenkins versiyasi (latest yoki aniq versiya)
+  tag: "lts"
+
+  # 2. QOLDIRING: admin parol
+  adminPassword: "admin"
+
+  # 3. O'ZGARTIRING: resurslar (VPS ga mos)
+  resources:
+    requests:
+      cpu: "QIYMAT"
+      memory: "QIYMAT"
+    limits:
+      cpu: "QIYMAT"
+      memory: "QIYMAT"
+
+  # 4. O'ZGARTIRING: Ingress sozlamalari
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hostName: "HOSTNAME_YOZING"
+    tls:
+      - secretName: "jenkins-tls"
+        hosts:
+          - "HOSTNAME_YOZING"
+
+  # 5. QOLDIRING: o'zgartirmang
+  installPlugins:
+    - kubernetes
+    - workflow-aggregator
+    - git
+    - configuration-as-code
+    - docker-workflow
+    - blueocean
+
+persistence:
+  # 6. O'ZGARTIRING: storage
+  enabled: true
+  storageClass: "STORAGECLASS_NOMI"
+  size: "HAJM"
+
+agent:
+  # 7. QOLDIRING: Jenkins agent (pod sifatida ishlaydi)
+  enabled: true
