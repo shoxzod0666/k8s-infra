@@ -1,36 +1,38 @@
 # Kubernetes Infrastructure Project
+
 Production-ready Kubernetes cluster deployed on bare-metal VPS with full GitOps, CI/CD, monitoring and logging stack.
+
 ## Architecture
 
-Internet
-│
-▼
-Nginx Ingress Controller (HTTPS/SSL)
-│
-▼
-┌─────────────────────────────────────┐
-│ Kubernetes Cluster │
-│ │
-│ ┌──────────┐ ┌──────────────┐ │
-│ │ node1 │ │ node2 │ │
-│ │ (master) │ │ (worker) │ │
-│ └──────────┘ └──────────────┘ │
-│ │
-│ ┌─────────────────────────────┐ │
-│ │ Google Microservices Demo │ │
-│ │ (10 microservices) │ │
-│ └─────────────────────────────┘ │
-│ │
-│ ┌──────────┐ ┌────────────────┐ │
-│ │Prometheus│ │ Grafana │ │
-│ │ │->│ + Loki logs │ │
-│ └──────────┘ └────────────────┘ │
-│ │
-│ ┌──────────┐ ┌────────────────┐ │
-│ │ ArgoCD │ │ Longhorn │ │
-│ │ (GitOps) │ │ (Storage) │ │
-│ └──────────┘ └────────────────┘ │
-└─────────────────────────────────────┘
+```mermaid
+graph TB
+    Internet([Internet]) --> Ingress[Nginx Ingress\nHTTPS/SSL]
+    Ingress --> Frontend[Frontend Service]
+    
+    subgraph Kubernetes Cluster
+        subgraph node1 [node1 - Master]
+            Frontend
+            Prometheus
+            Grafana
+            ArgoCD
+        end
+        
+        subgraph node2 [node2 - Worker]
+            MS[Microservices\n10 services]
+            Loki
+            Jenkins
+        end
+        
+        Longhorn[(Longhorn\nStorage)]
+        
+        Frontend --> MS
+        Prometheus --> Grafana
+        Loki --> Grafana
+    end
+    
+    GitHub([GitHub]) -->|Push| Actions[GitHub Actions]
+    Actions -->|Deploy| Frontend
+    ArgoCD -->|Sync| Kubernetes Cluster
 
 ## Stack
 
