@@ -137,3 +137,25 @@ resource "helm_release" "promtail" {
 
   depends_on = [helm_release.loki]
 }
+
+# Zabbix namespace
+resource "kubernetes_namespace" "zabbix" {
+  metadata {
+    name = "zabbix"
+  }
+}
+
+# Zabbix
+resource "helm_release" "zabbix" {
+  name       = "zabbix"
+  repository = "https://zabbix-community.github.io/helm-zabbix"
+  chart      = "zabbix"
+  namespace  = kubernetes_namespace.zabbix.metadata[0].name
+
+  values = [file("${path.module}/../zabbix/my-values.yaml")]
+
+  depends_on = [
+    kubernetes_namespace.zabbix,
+    helm_release.longhorn
+  ]
+}
