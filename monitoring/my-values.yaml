@@ -43,14 +43,27 @@ alertmanager:
       group_interval: 10s
       repeat_interval: 1h
       receiver: 'telegram'
+      routes:
+        - matchers:
+            - alertname = "Watchdog"
+          receiver: 'null'
     receivers:
+      - name: 'null'
       - name: 'telegram'
         telegram_configs:
           - bot_token: '8564917508:AAHwt1XFnajnPVxWkNCy3a9gI9htujyQ7R0'
             chat_id: 1620259665
             parse_mode: 'HTML'
-            massage: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+            message: |-
+              {{ range .Alerts }}
+              {{ if eq .Labels.severity "critical" }}🔴{{ else }}⚠️{{ end }} <b>{{ .Labels.alertname }}</b>
 
+              <b>Daraja:</b> {{ .Labels.severity }}
+              <b>Instance:</b> {{ .Labels.instance }}
+              <b>Tavsif:</b> {{ .Annotations.description }}
+              <b>Holat:</b> {{ .Status }}
+              <b>Vaqt:</b> {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+              {{ end }}
 nodeExporter:
   enabled: true
 kubeStateMetrics:
