@@ -1,4 +1,8 @@
 grafana:
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 5Gi
   adminPassword: "admin"
   ingress:
     enabled: true
@@ -30,6 +34,23 @@ alertmanager:
       limits:
         memory: 256Mi
         cpu: 200m
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'telegram'
+    receivers:
+      - name: 'telegram'
+        telegram_configs:
+          - bot_token: '8564917508:AAHwt1XFnajnPVxWkNCy3a9gI9htujyQ7R0'
+            chat_id: 1620259665
+            parse_mode: 'HTML'
+            massage: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
 nodeExporter:
   enabled: true
 kubeStateMetrics:

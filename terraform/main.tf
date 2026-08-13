@@ -159,3 +159,9 @@ resource "helm_release" "zabbix" {
     helm_release.longhorn
   ]
 }
+# Prometheus Alert Rules
+resource "kubectl_manifest" "alert_rules" {
+  yaml_body = file("${path.module}/../monitoring/alert-rules.yaml")
+
+  depends_on = [helm_release.kube_prometheus_stack]
+}
