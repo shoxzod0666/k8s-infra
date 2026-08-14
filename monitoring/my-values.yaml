@@ -45,3 +45,6 @@ nodeExporter:
   enabled: true
 kubeStateMetrics:
   enabled: true
+
+defaultRules:
+  create: false
