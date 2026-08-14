@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: telegram-config
+  namespace: monitoring
+  labels:
+    alertmanagerConfig: telegram
+spec:
+  route:
+    receiver: telegram
+    groupBy: ['alertname']
+    groupWait: 10s
+    groupInterval: 10s
+    repeatInterval: 1h
+  receivers:
+    - name: telegram
+      telegramConfigs:
+        - apiURL: https://api.telegram.org
+          botToken:
+            name: telegram-credentials
+            key: bot_token
+          chatID: 1620259665
+          parseMode: HTML
+          message: |-
+            {{ range .Alerts }}
+            {{ if eq .Labels.severity "critical" }}🔴{{ else }}⚠️{{ end }} <b>{{ .Labels.alertname }}</b>
+
+            <b>Daraja:</b> {{ .Labels.severity }}
+            <b>Instance:</b> {{ .Labels.instance }}
+            <b>Tavsif:</b> {{ .Annotations.description }}
+            <b>Holat:</b> {{ .Status }}
+            <b>Vaqt:</b> {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+            {{ end }}

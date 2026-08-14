@@ -41,6 +41,13 @@ resource "kubernetes_namespace" "argocd" {
   }
 }
 
+# External Secrets namespace
+resource "kubernetes_namespace" "external_secrets" {
+  metadata {
+    name = "external-secrets"
+  }
+}
+
 # Jenkins
 resource "helm_release" "jenkins" {
   name       = "jenkins"
@@ -164,4 +171,38 @@ resource "kubectl_manifest" "alert_rules" {
   yaml_body = file("${path.module}/../monitoring/alert-rules.yaml")
 
   depends_on = [helm_release.kube_prometheus_stack]
+}
+
+# Vault namespace
+resource "kubernetes_namespace" "vault" {
+  metadata {
+    name = "vault"
+  }
+}
+
+# Vault
+resource "helm_release" "vault" {
+  name       = "vault"
+  repository = "https://helm.releases.hashicorp.com"
+  chart      = "vault"
+  namespace  = kubernetes_namespace.vault.metadata[0].name
+
+  values = [file("${path.module}/../vault/my-values.yaml")]
+
+  depends_on = [
+    kubernetes_namespace.vault,
+    helm_release.longhorn
+  ]
+}
+
+# External Secrets Operator
+resource "helm_release" "external_secrets" {
+  name       = "external-secrets"
+  repository = "https://charts.external-secrets.io"
+  chart      = "external-secrets"
+  namespace  = kubernetes_namespace.external_secrets.metadata[0].name
+
+  values = [file("${path.module}/../external-secrets/my-values.yaml")]
+
+  depends_on = [kubernetes_namespace.external_secrets]
 }
