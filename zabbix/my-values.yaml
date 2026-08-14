@@ -31,6 +31,12 @@ zabbixAgent:
 
 postgresql:
   enabled: true
+  auth:
+    auth:
+    existingSecret: zabbix-postgres-credentials
+    secretKeys:
+      adminPasswordKey: password
+      userPasswordKey: password
   persistence:
     enabled: true
     storageClass: longhorn
