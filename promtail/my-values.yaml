@@ -3,6 +3,26 @@ config:
     - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
       tenant_id: fake
 
+  snippets:
+    piplineStages:
+      - cri: {}
+      - match:
+        selector: '{namespace="ingerss-nginx"}'
+        stages:
+          - json:
+              expressions:
+                path: path
+                method: method
+                status: status
+                remote_addr: remote_addr
+                response_time: response_time
+                host: host
+                user_agent: user_aget
+        - labels:
+            method:
+            status:
+            host:
+
 resources:
   requests:
     memory: 128Mi
